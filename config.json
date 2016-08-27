@@ -245,7 +245,13 @@
       "valueType": "target",
       "values": [],
       "defaultValue": ""
-    }    
+    },
+    "TestTFM": {
+      "description": "Sets the TestTFM property to run tests for a specific platform.",
+      "valueType": "property",
+      "values": [],
+      "defaultValue": "netcoreapp1.0"
+    }
   },
   "commands": {
     "build-managed": {
