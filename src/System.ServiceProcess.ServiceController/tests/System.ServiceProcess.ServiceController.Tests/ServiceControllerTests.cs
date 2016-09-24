@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using Microsoft.Win32;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Principal;
 using Xunit;
@@ -18,6 +19,7 @@ namespace System.ServiceProcess.Tests
         public readonly string DependentTestServiceNamePrefix;
         public readonly string DependentTestServiceDisplayNamePrefix;
         public readonly string TestServiceRegistryKey;
+        public readonly int TestServiceType;
 
         public ServiceProvider()
         {
@@ -28,11 +30,14 @@ namespace System.ServiceProcess.Tests
             DependentTestServiceNamePrefix = TestServiceName + ".Dependent";
             DependentTestServiceDisplayNamePrefix = TestServiceDisplayName + ".Dependent";
             TestServiceRegistryKey = @"HKEY_USERS\.DEFAULT\dotnetTests\ServiceController\" + TestServiceName;
+            TestServiceType = -1;
 
             // Create the service
             CreateTestServices();
         }
 
+        public ServiceProvider(int serviceType) : this() { TestServiceType = serviceType; }
+        
         private void CreateTestServices()
         {
             // Create the test service and its dependent services. Then, start the test service.
@@ -55,7 +60,7 @@ namespace System.ServiceProcess.Tests
             const string serviceExecutable = "System.ServiceProcess.ServiceController.TestNativeService.exe";
             var process = new Process();
             process.StartInfo.FileName = serviceExecutable;
-            process.StartInfo.Arguments = string.Format("\"{0}\" \"{1}\" {2}", TestServiceName, TestServiceDisplayName, action);
+            process.StartInfo.Arguments = string.Format("\"{0}\" \"{1}\" {2} {3}", TestServiceName, TestServiceDisplayName, action, TestServiceType != -1 ? TestServiceType : string.Empty);
             process.Start();
             process.WaitForExit();
             
@@ -65,7 +70,7 @@ namespace System.ServiceProcess.Tests
             }
         }
     }
-
+    
     [OuterLoop(/* Modifies machine state */)]
     public class ServiceControllerTests : IDisposable
     {
@@ -75,10 +80,12 @@ namespace System.ServiceProcess.Tests
             () => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator));
 
         private readonly ServiceProvider _testService;
+        private readonly List<ServiceProvider> _services = new List<ServiceProvider>();
 
         public ServiceControllerTests()
         {
             _testService = new ServiceProvider();
+            _services.Add(_testService);
         }
 
         private static bool RunningWithElevatedPrivileges
@@ -98,6 +105,15 @@ namespace System.ServiceProcess.Tests
         public void ConstructWithServiceName()
         {
             var controller = new ServiceController(_testService.TestServiceName);
+            AssertExpectedProperties(controller);
+        }
+
+        [ConditionalFact(nameof(RunningWithElevatedPrivileges))]
+        public void TestServiceType()
+        {
+            ServiceProvider kernelTypeService = new ServiceProvider(0x00000001);
+            _services.Add(kernelTypeService);
+            var controller = new ServiceController(kernelTypeService);
             AssertExpectedProperties(controller);
         }
 
@@ -268,7 +284,8 @@ namespace System.ServiceProcess.Tests
 
         public void Dispose()
         {
-            _testService.DeleteTestServices();
+            foreach (ServiceProvider sp in _services)
+                sp.DeleteTestServices();
         }
 
         private static ServiceController AssertHasDependent(ServiceController controller, string serviceName, string displayName)
