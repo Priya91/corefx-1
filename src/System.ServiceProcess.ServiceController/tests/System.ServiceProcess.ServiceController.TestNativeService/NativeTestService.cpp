@@ -32,10 +32,13 @@ LPTSTR                  gServiceDisplayName;
 std::wstring            gDependentServiceNames[DEPENDENT_SERVICES];
 std::wstring            gDependentServiceDisplayNames[DEPENDENT_SERVICES];
 
+// ServiceType
+DWORD                   gServiceType = SERVICE_WIN32_OWN_PROCESS;
+
 // Service Management Methods
 VOID GenerateDependentServiceNames();
 BOOL CreateTestServices();
-SC_HANDLE CreateTestService(SC_HANDLE, LPCTSTR, LPCTSTR, LPCTSTR, int, LPCTSTR dependencies = NULL);
+SC_HANDLE CreateTestService(SC_HANDLE, LPCTSTR, LPCTSTR, LPCTSTR, int, DWORD, LPCTSTR dependencies = NULL);
 BOOL DeleteTestServices();
 BOOL DeleteTestService(SC_HANDLE, LPCTSTR);
 
@@ -53,7 +56,7 @@ int _tmain(int argc, _TCHAR* argv [])
 {
 	if (argc < 3 || argc > 4)
 	{
-		puts("usage: System.ServiceProcess.ServiceController.TestNativeService.exe <ServiceName> <DisplayName> [create|delete]");
+		puts("usage: System.ServiceProcess.ServiceController.TestNativeService.exe <ServiceName> <DisplayName> [create|delete] [type]");
 		return 1;
 	}
 
@@ -76,7 +79,11 @@ int _tmain(int argc, _TCHAR* argv [])
 			LogMessage(L"error: StartServiceCtrlDispatcher failed (%d)\n", GetLastError());
 		}
 	}
-	else if (argc == 4)
+    else if (argc == 5)
+    {
+        gServiceType = (DWORD)argv[4];
+    }
+	else if (argc >= 4)
 	{
 		if (!InitModulePath())
 		{
@@ -153,14 +160,17 @@ BOOL CreateTestServices()
 	serviceCommand += gServiceName;
 	serviceCommand += L"\" \"";
 	serviceCommand += gServiceDisplayName;
-	serviceCommand += L"\"";
+	serviceCommand += L"\" \"";
+    serviceCommand += gServiceType;
+    serviceCommand += L"\"";
 
 	SC_HANDLE hService = CreateTestService(
 		hScManager,
 		gServiceName,
 		gServiceDisplayName,
 		serviceCommand.c_str(),
-		SERVICE_DEMAND_START
+		SERVICE_DEMAND_START,
+        gServiceType
 		);
 
 	if (hService == NULL)
@@ -182,6 +192,7 @@ BOOL CreateTestServices()
 			gDependentServiceDisplayNames[i].c_str(),
 			serviceCommand.c_str(),
 			SERVICE_DISABLED,
+            gServiceType,
 			dependencies.c_str());
 
 		if (hDependentService == NULL)
@@ -222,14 +233,14 @@ BOOL CreateTestServices()
 	return result;
 }
 
-SC_HANDLE CreateTestService(SC_HANDLE hScManager, LPCTSTR name, LPCTSTR displayName, LPCTSTR command, int startType, LPCTSTR dependencies)
+SC_HANDLE CreateTestService(SC_HANDLE hScManager, LPCTSTR name, LPCTSTR displayName, LPCTSTR command, int startType, DWORD serviceType, LPCTSTR dependencies)
 {
 	SC_HANDLE hService = CreateService(
 		hScManager,                // SCM database 
 		name,                      // name of service 
 		displayName,               // service name to display 
 		SERVICE_ALL_ACCESS,        // desired access 
-		SERVICE_WIN32_OWN_PROCESS, // service type 
+		serviceType,               // service type 
 		startType,                 // start type 
 		SERVICE_ERROR_NORMAL,      // error control type 
 		command,                   // path to service's binary + arguments
