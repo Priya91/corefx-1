@@ -19,7 +19,7 @@ namespace System.ServiceProcess.Tests
         public readonly string DependentTestServiceNamePrefix;
         public readonly string DependentTestServiceDisplayNamePrefix;
         public readonly string TestServiceRegistryKey;
-        public readonly int TestServiceType;
+        public readonly string TestServiceType;
 
         public ServiceProvider()
         {
@@ -30,13 +30,13 @@ namespace System.ServiceProcess.Tests
             DependentTestServiceNamePrefix = TestServiceName + ".Dependent";
             DependentTestServiceDisplayNamePrefix = TestServiceDisplayName + ".Dependent";
             TestServiceRegistryKey = @"HKEY_USERS\.DEFAULT\dotnetTests\ServiceController\" + TestServiceName;
-            TestServiceType = -1;
+            TestServiceType = string.Empty;
 
             // Create the service
             CreateTestServices();
         }
 
-        public ServiceProvider(int serviceType) : this() { TestServiceType = serviceType; }
+        public ServiceProvider(string serviceType) : this() { TestServiceType = serviceType; }
         
         private void CreateTestServices()
         {
@@ -60,7 +60,7 @@ namespace System.ServiceProcess.Tests
             const string serviceExecutable = "System.ServiceProcess.ServiceController.TestNativeService.exe";
             var process = new Process();
             process.StartInfo.FileName = serviceExecutable;
-            process.StartInfo.Arguments = string.Format("\"{0}\" \"{1}\" {2} {3}", TestServiceName, TestServiceDisplayName, action, TestServiceType != -1 ? TestServiceType : string.Empty);
+            process.StartInfo.Arguments = string.Format("\"{0}\" \"{1}\" {2} {3}", TestServiceName, TestServiceDisplayName, action, TestServiceType);
             process.Start();
             process.WaitForExit();
             
@@ -108,12 +108,13 @@ namespace System.ServiceProcess.Tests
             AssertExpectedProperties(controller);
         }
 
-        [ConditionalFact(nameof(RunningWithElevatedPrivileges))]
+        //[ConditionalFact(nameof(RunningWithElevatedPrivileges))]
+        [Fact]
         public void TestServiceType()
         {
-            ServiceProvider kernelTypeService = new ServiceProvider(0x00000001);
+            ServiceProvider kernelTypeService = new ServiceProvider("1");
             _services.Add(kernelTypeService);
-            var controller = new ServiceController(kernelTypeService);
+            var controller = new ServiceController(kernelTypeService.TestServiceName);
             AssertExpectedProperties(controller);
         }
 

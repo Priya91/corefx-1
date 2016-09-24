@@ -54,7 +54,7 @@ VOID LogMessage(LPCTSTR format, ...);
 
 int _tmain(int argc, _TCHAR* argv [])
 {
-	if (argc < 3 || argc > 4)
+	if (argc < 3 || argc > 5)
 	{
 		puts("usage: System.ServiceProcess.ServiceController.TestNativeService.exe <ServiceName> <DisplayName> [create|delete] [type]");
 		return 1;
@@ -62,6 +62,11 @@ int _tmain(int argc, _TCHAR* argv [])
 
 	gServiceName = argv[1];
 	gServiceDisplayName = argv[2];
+    
+    if (argc == 5)
+    {
+        gServiceType = (DWORD)argv[4];
+    }
 
 	if (argc == 3)
 	{
@@ -79,10 +84,6 @@ int _tmain(int argc, _TCHAR* argv [])
 			LogMessage(L"error: StartServiceCtrlDispatcher failed (%d)\n", GetLastError());
 		}
 	}
-    else if (argc == 5)
-    {
-        gServiceType = (DWORD)argv[4];
-    }
 	else if (argc >= 4)
 	{
 		if (!InitModulePath())
