@@ -8,15 +8,15 @@ namespace System.Net
     {
         public void Close()
         {
-            //if (NetEventSource.Log.IsEnabled()) NetEventSource.Enter(NetEventSource.ComponentType.HttpListener, this, "Close", "");
+            //if (NetEventSource.IsEnabled) NetEventSource.Enter(this, "Close", "");
             try
             {
-                //GlobalLog.Print("HttpListenerResponse::Close()");
+                //if (NetEventSource.IsEnabled) NetEventSource.Info("HttpListenerResponse::Close()");
                 ((IDisposable)this).Dispose();
             }
             finally
             {
-                //if (NetEventSource.Log.IsEnabled()) NetEventSource.Exit(NetEventSource.ComponentType.HttpListener, this, "Close", "");
+                //if (NetEventSource.IsEnabled) NetEventSource.Exit(this, "Close", "");
             }
         }
 

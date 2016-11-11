@@ -457,9 +457,9 @@ namespace System.Net
 
         private void LogWarning(string methodName, string message, params object[] args)
         {
-            //if (NetEventSource.Log.IsEnabled())
+            //if (NetEventSource.IsEnabled)
             //{
-            //    NetEventSource.PrintError(NetEventSource.ComponentType.HttpListener, this, methodName, SR.Format(message, args));
+            //    NetEventSource.PrintError(this, methodName, SR.Format(message, args));
             //}
         }
 

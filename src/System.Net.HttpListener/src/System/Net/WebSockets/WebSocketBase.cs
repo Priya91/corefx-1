@@ -78,7 +78,7 @@ namespace System.Net.WebSockets
             WebSocketHelpers.ValidateOptions(subProtocol, internalBuffer.ReceiveBufferSize,
                 internalBuffer.SendBufferSize, keepAliveInterval);
 
-            s_LoggingEnabled = NetEventSource.Log.IsEnabled();
+            s_LoggingEnabled = NetEventSource.IsEnabled;
             string parameters = string.Empty;
 
             //if (s_LoggingEnabled)
@@ -1500,7 +1500,7 @@ namespace System.Net.WebSockets
             //        "closeStatus: {0}, closeStatusDescription: {1}, m_State: {2}",
             //        closeStatus, closeStatusDescription, m_State);
 
-            //    NetEventSource.PrintInfo(NetEventSource.ComponentType.WebSocket, this, Methods.FinishOnCloseReceived, parameters);
+            //    NetEventSource.Info(NetEventSource.ComponentType.WebSocket, this, Methods.FinishOnCloseReceived, parameters);
             //}
         }
 

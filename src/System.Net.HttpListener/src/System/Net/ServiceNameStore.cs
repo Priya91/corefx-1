@@ -158,9 +158,9 @@ namespace System.Net
                 {
                     addedAny = true;
 
-                    //if (NetEventSource.Log.IsEnabled()) 
+                    //if (NetEventSource.IsEnabled) 
                     //{
-                    //    NetEventSource.PrintInfo(NetEventSource.ComponentType.HttpListener, "ServiceNameStore#" +
+                    //    NetEventSource.Info("ServiceNameStore#" +
                     //        LoggingHash.HashString(this) + "::Add() " 
                     //        + SR.Format(SR.net_log_listener_spn_add, spn, uriPrefix));
                     //}
@@ -171,9 +171,9 @@ namespace System.Net
             {
                 _serviceNameCollection = null;
             }
-            else if (NetEventSource.Log.IsEnabled())
+            else if (NetEventSource.IsEnabled)
             {
-                //NetEventSource.PrintInfo(NetEventSource.ComponentType.HttpListener, "ServiceNameStore#" +
+                //NetEventSource.Info("ServiceNameStore#" +
                 //    LoggingHash.HashString(this) + "::Add() " 
                 //    + SR.Format(SR.net_log_listener_spn_not_add, uriPrefix));
             }
@@ -195,14 +195,14 @@ namespace System.Net
                 _serviceNameCollection = null; //invalidate (readonly) ServiceNameCollection
             }
 
-            //if (NetEventSource.Log.IsEnabled()) {
+            //if (NetEventSource.IsEnabled) {
             //    if (needToRemove) {
-            //        NetEventSource.PrintInfo(NetEventSource.ComponentType.HttpListener, "ServiceNameStore#" +
+            //        NetEventSource.Info("ServiceNameStore#" +
             //            LoggingHash.HashString(this) + "::Remove() " 
             //            + SR.Format(SR.net_log_listener_spn_remove, newServiceName, uriPrefix));
             //    }
             //    else {
-            //        NetEventSource.PrintInfo(NetEventSource.ComponentType.HttpListener, "ServiceNameStore#" +
+            //        NetEventSource.Info("ServiceNameStore#" +
             //            LoggingHash.HashString(this) + "::Remove() " 
             //            + SR.Format(SR.net_log_listener_spn_not_remove, uriPrefix));
             //    }

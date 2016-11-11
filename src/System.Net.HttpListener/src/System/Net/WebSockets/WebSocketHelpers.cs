@@ -68,7 +68,7 @@ namespace System.Net.WebSockets
             ArraySegment<byte> internalBuffer)
         {
             HttpListenerWebSocketContext webSocketContext = null;
-            //if (NetEventSource.Log.IsEnabled())
+            //if (NetEventSource.IsEnabled)
             //{
             //    NetEventSource.Enter(NetEventSource.ComponentType.WebSocket, context, "AcceptWebSocketAsync", "");
             //}
@@ -119,20 +119,20 @@ namespace System.Net.WebSockets
                         hresult));
                 }
 
-                //if (NetEventSource.Log.IsEnabled())
+                //if (NetEventSource.IsEnabled)
                 //{
-                //    NetEventSource.PrintInfo(NetEventSource.ComponentType.WebSocket, string.Format("{0} = {1}",
+                //    NetEventSource.Info(NetEventSource.ComponentType.WebSocket, string.Format("{0} = {1}",
                 //        HttpKnownHeaderNames.Origin, origin));
-                //    NetEventSource.PrintInfo(NetEventSource.ComponentType.WebSocket, string.Format("{0} = {1}",
+                //    NetEventSource.Info(NetEventSource.ComponentType.WebSocket, string.Format("{0} = {1}",
                 //        HttpKnownHeaderNames.SecWebSocketVersion, secWebSocketVersion));
-                //    NetEventSource.PrintInfo(NetEventSource.ComponentType.WebSocket, string.Format("{0} = {1}",
+                //    NetEventSource.Info(NetEventSource.ComponentType.WebSocket, string.Format("{0} = {1}",
                 //        HttpKnownHeaderNames.SecWebSocketKey, secWebSocketKey));
-                //    NetEventSource.PrintInfo(NetEventSource.ComponentType.WebSocket, string.Format("{0} = {1}",
+                //    NetEventSource.Info(NetEventSource.ComponentType.WebSocket, string.Format("{0} = {1}",
                 //        HttpKnownHeaderNames.SecWebSocketAccept, secWebSocketAccept));
-                //    NetEventSource.PrintInfo(NetEventSource.ComponentType.WebSocket, string.Format("Request  {0} = {1}",
+                //    NetEventSource.Info(NetEventSource.ComponentType.WebSocket, string.Format("Request  {0} = {1}",
                 //        HttpKnownHeaderNames.SecWebSocketProtocol,
                 //        request.Headers[HttpKnownHeaderNames.SecWebSocketProtocol]));
-                //    NetEventSource.PrintInfo(NetEventSource.ComponentType.WebSocket, string.Format("Response {0} = {1}",
+                //    NetEventSource.Info(NetEventSource.ComponentType.WebSocket, string.Format("Response {0} = {1}",
                 //        HttpKnownHeaderNames.SecWebSocketProtocol, outgoingSecWebSocketProtocolString));
                 //}
 
@@ -165,7 +165,7 @@ namespace System.Net.WebSockets
                                                                     secWebSocketKey,
                                                                     webSocket);
 
-                //if (NetEventSource.Log.IsEnabled())
+                //if (NetEventSource.IsEnabled)
                 //{
                 //    NetEventSource.Associate(NetEventSource.ComponentType.WebSocket, context, webSocketContext);
                 //    NetEventSource.Associate(NetEventSource.ComponentType.WebSocket, webSocketContext, webSocket);
@@ -173,7 +173,7 @@ namespace System.Net.WebSockets
             }
             //catch (Exception ex)
             //{
-            //    if (NetEventSource.Log.IsEnabled())
+            //    if (NetEventSource.IsEnabled)
             //    {
             //        NetEventSource.Exception(NetEventSource.ComponentType.WebSocket, context, "AcceptWebSocketAsync", ex);
             //    }
@@ -181,7 +181,7 @@ namespace System.Net.WebSockets
             //}
             finally
             {
-                //if (NetEventSource.Log.IsEnabled())
+                //if (NetEventSource.IsEnabled)
                 //{
                 //    NetEventSource.Exit(NetEventSource.ComponentType.WebSocket, context, "AcceptWebSocketAsync", "");
                 //}
