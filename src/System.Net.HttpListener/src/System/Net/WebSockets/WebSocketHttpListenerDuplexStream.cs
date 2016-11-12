@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace System.Net.WebSockets
 {
-    internal class WebSocketHttpListenerDuplexStream : Stream, WebSocketBase.IWebSocketStream
+    internal sealed class WebSocketHttpListenerDuplexStream : Stream, WebSocketBase.IWebSocketStream
     {
         private static readonly EventHandler<HttpListenerAsyncEventArgs> s_OnReadCompleted =
             new EventHandler<HttpListenerAsyncEventArgs>(OnReadCompleted);

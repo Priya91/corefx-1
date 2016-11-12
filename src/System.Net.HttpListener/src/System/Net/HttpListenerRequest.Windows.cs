@@ -352,7 +352,7 @@ namespace System.Net
 
                 foreach (string upgrade in this.Headers.GetValues(HttpKnownHeaderNames.Upgrade))
                 {
-                    if (string.Compare(upgrade, WebSocketHelpers.WebSocketUpgradeToken, StringComparison.OrdinalIgnoreCase) == 0)
+                    if (string.Equals(upgrade, WebSocketHelpers.WebSocketUpgradeToken, StringComparison.OrdinalIgnoreCase))
                     {
                         return true;
                     }
@@ -529,7 +529,10 @@ namespace System.Net
 
         public Task<X509Certificate2> GetClientCertificateAsync()
         {
-            return Task<X509Certificate2>.Factory.FromAsync(BeginGetClientCertificate, EndGetClientCertificate, null);
+            return Task.Factory.FromAsync(
+                (callback, state) => ((HttpListenerRequest)state).BeginGetClientCertificate(callback, state),
+                iar => ((HttpListenerRequest)iar.AsyncState).EndGetClientCertificate(iar),
+                null);
         }
 
         public TransportContext TransportContext
@@ -612,12 +615,14 @@ namespace System.Net
                     else
                     {
                         header = header.ToLower(CultureInfo.InvariantCulture);
-                        _keepAlive = header.IndexOf("close") < 0 || header.IndexOf("keep-alive") >= 0;
+                        _keepAlive =
+                            header.IndexOf("close", StringComparison.InvariantCultureIgnoreCase) < 0 ||
+                            header.IndexOf("keep-alive", StringComparison.InvariantCultureIgnoreCase) >= 0;
                     }
                 }
 
                 if (NetEventSource.IsEnabled) NetEventSource.Info(this, "_keepAlive=" + _keepAlive);
-                return _keepAlive == true;
+                return _keepAlive.Value;
             }
         }
 
@@ -658,7 +663,7 @@ namespace System.Net
                 _memoryBlob = null;
             }
             _isDisposed = true;
-           if (NetEventSource.IsEnabled) NetEventSource.Exit(this);
+            if (NetEventSource.IsEnabled) NetEventSource.Exit(this);
         }
 
         private ListenerClientCertAsyncResult AsyncProcessClientCertificate(AsyncCallback requestCallback, object state)
@@ -750,10 +755,7 @@ namespace System.Net
                 }
                 catch
                 {
-                    if (asyncResult != null)
-                    {
-                        asyncResult.InternalCleanup();
-                    }
+                    asyncResult?.InternalCleanup();
                     throw;
                 }
             }
