@@ -245,6 +245,7 @@ namespace System.Net
                         ref _securityContext,
                         _spn,
                         _requestedContextFlags,
+                        _channelBinding,
                         inSecurityBufferArray,
                         outSecurityBuffer,
                         ref _contextFlags);

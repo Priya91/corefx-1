@@ -4,6 +4,7 @@
 
 using System.Globalization;
 using System.ComponentModel;
+using System.Security.Authentication.ExtendedProtection;
 
 namespace System.Net.Security
 {
@@ -71,6 +72,7 @@ namespace System.Net.Security
             ref SafeDeleteContext securityContext,
             string spn,
             ContextFlagsPal requestedContextFlags,
+            ChannelBinding channelBinding,
             SecurityBuffer[] inSecurityBufferArray,
             SecurityBuffer outSecurityBuffer,
             ref ContextFlagsPal contextFlags)

@@ -100,6 +100,7 @@ namespace System.Net.Security
             bool isNtlm,
             SafeGssNameHandle targetName,
             Interop.NetSecurityNative.GssFlags inFlags,
+            ChannelBinding channelBinding,
             byte[] buffer,
             out byte[] outputBuffer,
             out uint outFlags,
@@ -128,6 +129,7 @@ namespace System.Net.Security
                                                           isNtlm,
                                                           targetName,
                                                           (uint)inFlags,
+                                                          channelBinding,
                                                           buffer,
                                                           (buffer == null) ? 0 : buffer.Length,
                                                           ref token,
@@ -154,6 +156,7 @@ namespace System.Net.Security
           ref SafeDeleteContext context,
           string targetName,
           ContextFlagsPal inFlags,
+          ChannelBinding channelBinding,
           SecurityBuffer inputBuffer,
           SecurityBuffer outputBuffer,
           ref ContextFlagsPal outFlags)
@@ -179,6 +182,7 @@ namespace System.Net.Security
                    isNtlmOnly,
                    negoContext.TargetName,
                    inputFlags,
+                   channelBinding,
                    inputBuffer?.token,
                    out outputBuffer.token,
                    out outputFlags,
@@ -220,16 +224,11 @@ namespace System.Net.Security
             ref SafeDeleteContext securityContext,
             string spn,
             ContextFlagsPal requestedContextFlags,
+            ChannelBinding channelBinding,
             SecurityBuffer[] inSecurityBufferArray,
             SecurityBuffer outSecurityBuffer,
             ref ContextFlagsPal contextFlags)
         {
-            // TODO (Issue #3718): The second buffer can contain a channel binding which is not supported
-            if ((null != inSecurityBufferArray) && (inSecurityBufferArray.Length > 1))
-            {
-                throw new PlatformNotSupportedException(SR.net_nego_channel_binding_not_supported);
-            }
-
             SafeFreeNegoCredentials negoCredentialsHandle = (SafeFreeNegoCredentials)credentialsHandle;
 
             if (negoCredentialsHandle.IsDefault && string.IsNullOrEmpty(spn))
@@ -242,6 +241,7 @@ namespace System.Net.Security
                 ref securityContext,
                 spn,
                 requestedContextFlags,
+                channelBinding,
                 ((inSecurityBufferArray != null && inSecurityBufferArray.Length != 0) ? inSecurityBufferArray[0] : null),
                 outSecurityBuffer,
                 ref contextFlags);

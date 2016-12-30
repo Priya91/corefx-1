@@ -176,6 +176,7 @@ extern "C" uint32_t NetSecurityNative_InitSecContext(uint32_t* minorStatus,
                                                      uint32_t isNtlm,
                                                      GssName* targetName,
                                                      uint32_t reqFlags,
+                                                     GssChannelBindings* inputChanBindings,
                                                      uint8_t* inputBytes,
                                                      uint32_t inputLength,
                                                      struct PAL_GssBuffer* outBuffer,
@@ -222,6 +223,11 @@ extern "C" uint32_t NetSecurityNative_InitSecContext(uint32_t* minorStatus,
     gss_OID krbMech = const_cast<gss_OID>(gss_mech_krb5);
 #endif
 
+    if (inputChanBindings == nullptr)
+    {
+    	inputChanBindings = GSS_C_NO_CHANNEL_BINDINGS;
+    }
+
     *isNtlmUsed = 1;
     GssBuffer inputToken{.length = UnsignedCast(inputLength), .value = inputBytes};
     GssBuffer gssBuffer{.length = 0, .value = nullptr};
@@ -234,7 +240,7 @@ extern "C" uint32_t NetSecurityNative_InitSecContext(uint32_t* minorStatus,
                                                 desiredMech,
                                                 reqFlags,
                                                 0,
-                                                GSS_C_NO_CHANNEL_BINDINGS,
+                                                inputChanBindings,
                                                 &inputToken,
                                                 &outmech,
                                                 &gssBuffer,

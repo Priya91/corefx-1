@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
+using System.Security.Authentication.ExtendedProtection;
 
 internal static partial class Interop
 {
@@ -76,6 +77,7 @@ internal static partial class Interop
             bool isNtlmOnly,
             SafeGssNameHandle targetName,
             uint reqFlags,
+            ChannelBinding channelBindings,
             byte[] inputBytes,
             int inputLength,
             ref GssBuffer token,

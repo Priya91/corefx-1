@@ -9,11 +9,13 @@ typedef struct gss_name_t_desc_struct GssName;
 typedef struct gss_ctx_id_t_desc_struct GssCtxId;
 typedef struct gss_cred_id_t_desc_struct GssCredId;
 typedef struct gss_buffer_desc_struct GssBuffer;
+typedef struct gss_channel_bindings_struct GssChannelBindings;
 #else
 typedef struct gss_name_struct GssName;
 typedef struct gss_ctx_id_struct GssCtxId;
 typedef struct gss_cred_id_struct GssCredId;
 typedef struct gss_buffer_desc_struct GssBuffer;
+typedef struct gss_channel_bindings_struct GssChannelBindings;
 #endif
 
 enum PAL_GssStatus : uint32_t
@@ -108,6 +110,7 @@ extern "C" uint32_t NetSecurityNative_InitSecContext(uint32_t* minorStatus,
                                                      uint32_t isNtlm,
                                                      GssName* targetName,
                                                      uint32_t reqFlags,
+                                                     GssChannelBindings* inputChanBindings,
                                                      uint8_t* inputBytes,
                                                      uint32_t inputLength,
                                                      struct PAL_GssBuffer* outBuffer,
