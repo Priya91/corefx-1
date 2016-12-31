@@ -293,6 +293,33 @@ namespace System.Net.Security.Tests
                 Assert.True(task.IsCompleted);
             }
         }
+
+        [OuterLoop]
+        [Fact]
+        [Trait("category", "mytest")]
+        public void NegotiateStream_StreamToStream_ChannelBinding_Authentication()
+        {
+            VirtualNetwork network = new VirtualNetwork();
+
+            using (var clientStream = new VirtualNetworkStream(network, isServer: false))
+            using (var serverStream = new VirtualNetworkStream(network, isServer: true))
+            using (var client = new NegotiateStream(clientStream))
+            using (var server = new NegotiateStream(serverStream))
+            {
+                Assert.False(client.IsAuthenticated);
+                Assert.False(server.IsAuthenticated);
+
+                Task[] auth = new Task[2];
+                auth[0] = client.AuthenticateAsClientAsync(CredentialCache.DefaultNetworkCredentials, null, string.Empty);
+                auth[1] = server.AuthenticateAsServerAsync();
+
+                bool finished = Task.WaitAll(auth, TestConfiguration.PassingTestTimeoutMilliseconds);
+                Assert.True(finished, "Handshake completed in the allotted time");
+
+                Assert.True(client.IsAuthenticated);
+                Assert.True(server.IsAuthenticated);
+            }
+        }
     }
 
     public sealed class NegotiateStreamStreamToStreamTest_Async : NegotiateStreamStreamToStreamTest
