@@ -21,6 +21,17 @@ namespace System.Net.Http.Functional.Tests
     public class HttpClientTest
     {
         [Fact]
+        [Trait("category", "mytest")]
+        public void IRI_Uri_Through_HttpClient()
+        {
+            using (var client = new HttpClient())
+            {
+                string content = client.GetStringAsync(@"http://allehjørnet.no").GetAwaiter().GetResult();
+                Console.WriteLine(content);
+            }
+        }
+
+        [Fact]
         public void Dispose_MultipleTimes_Success()
         {
             var client = new HttpClient();
