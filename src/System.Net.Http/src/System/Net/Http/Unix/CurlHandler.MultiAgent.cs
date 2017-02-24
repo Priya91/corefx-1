@@ -846,7 +846,6 @@ namespace System.Net.Http
                     if (messageResult == 77)
                     {
                         Console.WriteLine("curlcode: {0}", messageResult);
-                        Console.WriteLine("")
                     }
                      
                     // libcurl will return CURLE_UNSUPPORTED_PROTOCOL if the url it tried to go to had an unsupported protocol.
