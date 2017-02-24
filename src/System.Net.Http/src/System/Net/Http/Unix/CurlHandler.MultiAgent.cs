@@ -843,7 +843,7 @@ namespace System.Net.Http
                     // or due to completing the entire response.
                     completedOperation.Cleanup();
 
-                    if (messageResult == 77)
+                    if ((int)messageResult == 77)
                     {
                         Console.WriteLine("curlcode: {0}", messageResult);
                     }
