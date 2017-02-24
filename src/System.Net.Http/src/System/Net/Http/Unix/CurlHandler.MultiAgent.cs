@@ -843,6 +843,12 @@ namespace System.Net.Http
                     // or due to completing the entire response.
                     completedOperation.Cleanup();
 
+                    if (messageResult == 77)
+                    {
+                        Console.WriteLine("curlcode: {0}", messageResult);
+                        Console.WriteLine("")
+                    }
+                     
                     // libcurl will return CURLE_UNSUPPORTED_PROTOCOL if the url it tried to go to had an unsupported protocol.
                     // This could be the original url provided or one provided in a Location header for a redirect.  Since
                     // we vet the original url passed in, such an error here must be for a redirect, in which case we want to

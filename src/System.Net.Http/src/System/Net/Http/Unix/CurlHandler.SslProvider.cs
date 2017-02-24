@@ -87,6 +87,7 @@ namespace System.Net.Http
                         break;
 
                     default:
+                        Console.WriteLine("Throwing from setting ssl callback: {0}", answer);
                         ThrowIfCURLEError(answer);
                         break;
                 }
@@ -132,6 +133,7 @@ namespace System.Net.Http
 
                 try
                 {
+                    Console.WriteLine("Setting curl ssl version: {0}", curlSslVersion);
                     easy.SetCurlOption(Interop.Http.CURLoption.CURLOPT_SSLVERSION, (long)curlSslVersion);
                 }
                 catch (CurlException e) when (e.HResult == (int)CURLcode.CURLE_UNKNOWN_OPTION)
