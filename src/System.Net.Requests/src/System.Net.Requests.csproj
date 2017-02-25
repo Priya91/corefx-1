@@ -18,6 +18,7 @@
     <Compile Include="FxCopBaseline.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="System.Console" />
     <Compile Include="System\Net\AuthenticationManager.cs" />
     <Compile Include="System\Net\Authorization.cs" />
     <Compile Include="System\Net\FileWebRequest.cs" />
