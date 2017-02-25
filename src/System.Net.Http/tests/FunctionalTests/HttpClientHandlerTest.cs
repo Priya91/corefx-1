@@ -249,8 +249,11 @@ namespace System.Net.Http.Functional.Tests
         [Trait("category", "repro")]
         public async Task Test()
         {
-            using (var client = new HttpClient())
-                await client.GetAsync(Configuration.Http.SecureRemoteEchoServer);
+            for (int i = 0; i < 200; i++)
+            {
+                using (var client = new HttpClient())
+                    await client.GetAsync(Configuration.Http.SecureRemoteEchoServer);
+            }
         }
 
         [OuterLoop] // TODO: Issue #11345
