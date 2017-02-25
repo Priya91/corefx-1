@@ -393,6 +393,7 @@ namespace System.Net.Http
                         CURLcode result;
                         while (Interop.Http.MultiInfoRead(_multiHandle, out message, out easyHandle, out result))
                         {
+                            Console.WriteLine("message: {0}, easyHandle: {1}, result: {2}", message, easyHandle, result);
                             HandleCurlMessage(message, easyHandle, result);
                         }
 

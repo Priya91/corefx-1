@@ -900,7 +900,6 @@ namespace System.Net
                 // Match Desktop behavior.  Changing this property will also
                 // change the .Credentials property as well.
                 _credentials = value ? CredentialCache.DefaultCredentials : null;
-                Console.WriteLine("credentials: {0} {1} {2}", (_credentials as NetworkCredential).UserName, (_credentials as NetworkCredential).Password, (_credentials as NetworkCredential).ToString());
             }
         }
 
