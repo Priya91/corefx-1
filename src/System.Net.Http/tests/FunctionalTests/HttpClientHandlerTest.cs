@@ -245,6 +245,14 @@ namespace System.Net.Http.Functional.Tests
             }
         }
 
+        [Fact]
+        [Trait("category", "repro")]
+        public async Task Test()
+        {
+            using (var client = new HttpClient())
+                await client.GetAsync(Configuration.Http.SecureRemoteEchoServer);
+        }
+
         [OuterLoop] // TODO: Issue #11345
         [Fact]
         public async Task GetAsync_ResponseContentAfterClientAndHandlerDispose_Success()
