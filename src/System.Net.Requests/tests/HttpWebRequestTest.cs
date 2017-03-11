@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.IO;
+using System.Diagnostics.Tracing;
 using System.Net.Http;
 using System.Net.Test.Common;
 using System.Text;
@@ -359,9 +360,12 @@ namespace System.Net.Tests
         [Theory, MemberData(nameof(EchoServers))]
         public async Task GetResponseAsync_UseDefaultCredentials_ExpectSuccess(Uri remoteServer)
         {
-            HttpWebRequest request = WebRequest.CreateHttp(remoteServer);
-            request.UseDefaultCredentials = true;
-            await request.GetResponseAsync();
+            using (new ConsoleEventListener())
+            {
+                HttpWebRequest request = WebRequest.CreateHttp(remoteServer);
+                request.UseDefaultCredentials = true;
+                await request.GetResponseAsync();
+            }
         }
 
         [OuterLoop] // fails on networks with DNS servers that provide a dummy page for invalid addresses
