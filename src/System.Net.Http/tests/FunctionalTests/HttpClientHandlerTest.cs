@@ -15,7 +15,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+using System.Diagnostics.Tracing;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -385,16 +385,18 @@ namespace System.Net.Http.Functional.Tests
 
         [Fact]
         [Trait("category", "mytest")]
-        public void CheckTrailingHeaders()
+        public async Task CheckTrailingHeaders()
         {
-            string responseHeaders = 
-            @"HTTP/1.1 200 OK\r\n" +
-"content-type:text/html; charset=utf-8\r\n" +
-"Transfer-Encoding: chunked\r\n" +
-"Connection: close\r\n" + "\r\n" +
-"4\r\nWiki\r\n5WikiR\r\n0\r\nsomeheader: header1\r\n";
+            using (new ConsoleEventListener())
+            {
+                string response = 
+                @"HTTP/1.1 200 OK\r\n" +
+                "content-type:text/html; charset=utf-8\r\n" +
+                "Transfer-Encoding: chunked\r\n" +
+                "Connection: close\r\n" + "\r\n" +
+                "4\r\nWiki\r\n5WikiR\r\n0\r\nsomeheader: header1\r\n";
 
-            await LoopbackServer.CreateServerAsync(async (server, url) =>
+                await LoopbackServer.CreateServerAsync(async (server, url) =>
                 {
                     var handler = new HttpClientHandler();
                     using (var client = new HttpClient(handler))
@@ -403,11 +405,11 @@ namespace System.Net.Http.Functional.Tests
                         await LoopbackServer.ReadRequestAndSendResponseAsync(server, response);
                         using (HttpResponseMessage message = await getResponse)
                         {
-                            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                            Assert.Equal(HttpStatusCode.OK, message.StatusCode);
                         }
                     }
-                }
-            );
+                 });
+            }
         }
 
         [OuterLoop] // TODO: Issue #11345

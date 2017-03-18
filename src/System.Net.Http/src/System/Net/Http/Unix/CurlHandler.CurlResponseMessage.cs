@@ -287,12 +287,14 @@ namespace System.Net.Http
 
                     // Quick check for if no data was actually requested.  We do this after the check
                     // for errors so that we can still fail the read and transfer the exception if we should.
+                    Console.WriteLine("Count in ReadAsync: {0}", count);
                     if (count == 0)
                     {
                         return s_zeroTask;
                     }
 
                     // If there's any data left over from a previous call, grab as much as we can.
+                    Console.WriteLine("RemainingDataCount: {0}", _remainingDataCount);
                     if (_remainingDataCount > 0)
                     {
                         int bytesToCopy = Math.Min(count, _remainingDataCount);
