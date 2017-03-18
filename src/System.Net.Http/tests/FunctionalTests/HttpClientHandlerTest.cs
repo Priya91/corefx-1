@@ -388,22 +388,11 @@ namespace System.Net.Http.Functional.Tests
         public void CheckTrailingHeaders()
         {
             string responseHeaders = 
-            @"HTTP/1.1 200 OK
-content-type:text/html; charset=utf-8
-Transfer-Encoding: chunked
-Connection: close
-
-4
-Wiki
-5
-pedia
-e
- in
-
-chunks.
-0
-SomeAfterHeader: TheData
-            ";
+            @"HTTP/1.1 200 OK\r\n" +
+"content-type:text/html; charset=utf-8\r\n" +
+"Transfer-Encoding: chunked\r\n" +
+"Connection: close\r\n" + "\r\n" +
+"4\r\nWiki\r\n5WikiR\r\n0\r\nsomeheader: header1\r\n";
 
             await LoopbackServer.CreateServerAsync(async (server, url) =>
                 {
