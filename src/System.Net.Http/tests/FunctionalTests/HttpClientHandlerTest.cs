@@ -405,6 +405,32 @@ namespace System.Net.Http.Functional.Tests
             }
         }
 
+        [Fact]
+        [Trait("category", "trailer")]
+        public async Task TestTrailingHeaders()
+        {
+            string responseHeaders = "HTTP/1.1 200 OK\r\n" +
+                "content-type:text/html; charset=utf-8\r\n" +
+                "Transfer-Encoding: chunked\r\n" +
+                "Connection: close\r\n" + "\r\n" +
+                "6\r\ndotnet\r\n0\r\nTrailingHeader: value\r\n\r\n";
+
+            //Console.WriteLine(responseHeaders);
+            using (HttpClient client = new HttpClient())
+            {
+                await LoopbackServer.CreateServerAsync(async (server, url) =>
+                {
+                    Task<HttpResponseMessage> messageTask = client.GetAsync(url);
+                    await LoopbackServer.ReadRequestAndSendResponseAsync(server, responseHeaders);
+
+                    using (HttpResponseMessage message = await messageTask)
+                    {
+                        Assert.Equal(HttpStatusCode.OK, message.StatusCode);
+                    }
+                });
+            }
+        }
+
         [OuterLoop] // TODO: Issue #11345
         [Theory, MemberData(nameof(RedirectStatusCodes))]
         public async Task GetAsync_AllowAutoRedirectTrue_RedirectFromHttpToHttp_StatusCodeOK(int statusCode)
