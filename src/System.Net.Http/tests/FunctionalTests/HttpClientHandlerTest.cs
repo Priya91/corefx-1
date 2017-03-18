@@ -383,6 +383,44 @@ namespace System.Net.Http.Functional.Tests
             });
         }
 
+        [Fact]
+        [Trait("category", "mytest")]
+        public void CheckTrailingHeaders()
+        {
+            string responseHeaders = 
+            @"HTTP/1.1 200 OK
+content-type:text/html; charset=utf-8
+Transfer-Encoding: chunked
+Connection: close
+
+4
+Wiki
+5
+pedia
+e
+ in
+
+chunks.
+0
+SomeAfterHeader: TheData
+            ";
+
+            await LoopbackServer.CreateServerAsync(async (server, url) =>
+                {
+                    var handler = new HttpClientHandler();
+                    using (var client = new HttpClient(handler))
+                    {
+                        Task<HttpResponseMessage> getResponse = client.GetAsync(url);
+                        await LoopbackServer.ReadRequestAndSendResponseAsync(server, response);
+                        using (HttpResponseMessage message = await getResponse)
+                        {
+                            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                        }
+                    }
+                }
+            );
+        }
+
         [OuterLoop] // TODO: Issue #11345
         [Theory, MemberData(nameof(RedirectStatusCodes))]
         public async Task GetAsync_AllowAutoRedirectFalse_RedirectFromHttpToHttp_StatusCodeRedirect(int statusCode)
