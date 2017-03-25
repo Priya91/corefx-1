@@ -681,7 +681,6 @@ namespace System.Net.Sockets.Tests
         }
 
         [Fact]
-        [PlatformSpecific(~TestPlatforms.OSX)] // SendBufferSize = 0 not supported on OSX.
         public async Task SendRecv_NoBuffering_Success()
         {
             if (!SupportsNonBlocking) return;
@@ -699,7 +698,12 @@ namespace System.Net.Sockets.Tests
 
                 using (Socket server = await acceptTask)
                 {
-                    client.SendBufferSize = 0;
+                    // SendBufferSize = 0 not supported on OSX.
+                    if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    {
+                        client.SendBufferSize = 0;
+                    }
+
                     server.ReceiveBufferSize = 0;
 
                     var sendBuffer = new byte[5000000];
