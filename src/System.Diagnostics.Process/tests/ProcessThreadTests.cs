@@ -23,12 +23,26 @@ namespace System.Diagnostics.Tests
             {
                 if (ThreadState.Terminated != thread.ThreadState)
                 {
-                    Assert.True(thread.Id >= 0);
                     Assert.Equal(_process.BasePriority, thread.BasePriority);
                     Assert.True(thread.CurrentPriority >= 0);
                     Assert.True(thread.PrivilegedProcessorTime.TotalSeconds >= 0);
                     Assert.True(thread.UserProcessorTime.TotalSeconds >= 0);
                     Assert.True(thread.TotalProcessorTime.TotalSeconds >= 0);
+#if TargetsOSX
+                    if (thread.Id < 0)
+                    {
+                        List<KeyValuePair<ulong, Interop.libproc.proc_threadinfo?>> lstThreads = Interop.libproc.GetAllThreadsInProcess(pid);
+                        foreach (KeyValuePair<ulong, Interop.libproc.proc_threadinfo?> t in lstThreads)
+                        {
+                            if ((int)t.Key == thread.Id)
+                            {
+                                // We hit the case of overflow in casting ulong id to int value.
+                                return;
+                            }
+                        }
+                    }
+#endif
+                    Assert.True(thread.Id >= 0, $"Thread Id was {thread.Id}");
                 }
             }
             catch (Exception e) when (e is Win32Exception || e is InvalidOperationException)
