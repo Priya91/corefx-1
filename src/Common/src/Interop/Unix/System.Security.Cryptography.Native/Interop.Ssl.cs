@@ -77,6 +77,9 @@ internal static partial class Interop
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool IsSslRenegotiatePending(SafeSslHandle ssl);
 
+        [DllImport(Libraries.CryptoNative, EntryPoint = "CryptoNative_SslSetQuietShutdown")]
+        internal static extern void SslSetQuietShutdown(SafeSslHandle ssl, int mode);
+
         [DllImport(Libraries.CryptoNative, EntryPoint = "CryptoNative_SslShutdown")]
         internal static extern int SslShutdown(IntPtr ssl);
 

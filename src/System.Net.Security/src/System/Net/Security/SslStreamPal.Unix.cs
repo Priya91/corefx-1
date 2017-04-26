@@ -180,14 +180,26 @@ namespace System.Net.Security
 
         public static SecurityStatusPal ApplyAlertToken(ref SafeFreeCredentials credentialsHandle, SafeDeleteContext securityContext, TlsAlertType alertType, TlsAlertMessage alertMessage)
         {
-            // TODO (#12319): Not implemented.
+            // There doesn't seem to be an exposed API for writing an alert,
+            // the API seems to assume that all alerts are generated internally by
+            // SSLHandshake.
             return new SecurityStatusPal(SecurityStatusPalErrorCode.OK);
         }
 
         public static SecurityStatusPal ApplyShutdownToken(ref SafeFreeCredentials credentialsHandle, SafeDeleteContext securityContext)
         {
-            // TODO (#12319): Not implemented.
-            return new SecurityStatusPal(SecurityStatusPalErrorCode.OK);
+            SafeDeleteSslContext sslContext = ((SafeDeleteSslContext)securityContext);
+            Interop.Ssl.SslSetQuietShutdown(sslContext.SslContext, 0);
+            int status = Interop.Ssl.SslShutdown(sslContext.SslContext.DangerousGetHandle());
+            if (status == 0)
+            {
+                // Retry shutdown for bidirectional shutdown.
+                status = Interop.Ssl.SslShutdown(sslContext.SslContext.DangerousGetHandle());
+            }
+
+            return status == 1 ?
+                new SecurityStatusPal(SecurityStatusPalErrorCode.OK) :
+                new SecurityStatusPal(SecurityStatusPalErrorCode.InternalError, new Interop.OpenSsl.SslException((int)status));
         }
     }
 }
