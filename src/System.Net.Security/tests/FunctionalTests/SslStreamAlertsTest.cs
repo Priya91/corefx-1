@@ -23,6 +23,7 @@ namespace System.Net.Security.Tests
 
         [Fact]
         [ActiveIssue(12319, TestPlatforms.AnyUnix)]
+        //[Trait("category", "mytest")]
         [ActiveIssue(16516, TestPlatforms.Windows)]
         public async Task SslStream_StreamToStream_HandshakeAlert_Ok()
         {
@@ -58,7 +59,8 @@ namespace System.Net.Security.Tests
         }
 
         [Fact]
-        [ActiveIssue(12319, TestPlatforms.AnyUnix)]
+        [Trait("category", "mytest")]
+        //[ActiveIssue(12319, TestPlatforms.AnyUnix)]
         [ActiveIssue(16516, TestPlatforms.Windows)]
         public async Task SslStream_StreamToStream_ServerInitiatedCloseNotify_Ok()
         {
