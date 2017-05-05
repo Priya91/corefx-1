@@ -220,6 +220,11 @@ extern "C" X509Stack* CryptoNative_X509StoreCtxGetChain(X509_STORE_CTX* ctx)
     return X509_STORE_CTX_get1_chain(ctx);
 }
 
+extern "C" X509* CryptoNative_X509StoreCtxGetCurrentCert(X509_STORE_CTX* ctx)
+{
+    return X509_STORE_CTX_get_current_cert(ctx);
+}
+
 extern "C" X509Stack* CryptoNative_X509StoreCtxGetSharedUntrusted(X509_STORE_CTX* ctx)
 {
     return ctx ? ctx->untrusted : nullptr;

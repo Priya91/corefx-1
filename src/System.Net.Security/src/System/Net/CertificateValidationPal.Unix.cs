@@ -12,7 +12,6 @@ namespace System.Net
     internal static partial class CertificateValidationPal
     {
         internal static SslPolicyErrors VerifyCertificateProperties(
-            SafeDeleteContext securityContext,
             X509Chain chain,
             X509Certificate2 remoteCertificate,
             bool checkCertName,
@@ -22,12 +21,27 @@ namespace System.Net
             return CertificateValidation.BuildChainAndVerifyProperties(chain, remoteCertificate, checkCertName, hostName);
         }
 
+        internal static bool VerifyRemoteCertificate(
+           SafeDeleteContext context,
+           bool checkCertName,
+           bool serverMode,
+           bool remoteCertRequired,
+           bool checkCertRevocation,
+           string hostName,
+           RemoteCertValidationCallback remoteCertValidationCallback,
+           ref X509Certificate2 remoteCertificateEx,
+           ref X509Chain chain,
+           ref SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
+
         //
         // Extracts a remote certificate upon request.
         //
         internal static X509Certificate2 GetRemoteCertificate(SafeDeleteContext securityContext)
         {
-            return GetRemoteCertificate(securityContext, null);
+            return GetRemoteCertificate(((SafeDeleteSslContext)securityContext).SslContext, null);
         }
 
         internal static X509Certificate2 GetRemoteCertificate(
@@ -41,25 +55,87 @@ namespace System.Net
             }
 
             remoteCertificateStore = new X509Certificate2Collection();
-            return GetRemoteCertificate(securityContext, remoteCertificateStore);
+            return GetRemoteCertificate(((SafeDeleteSslContext)securityContext).SslContext, remoteCertificateStore);
         }
 
-        private static X509Certificate2 GetRemoteCertificate(SafeDeleteContext securityContext, X509Certificate2Collection remoteCertificateStore)
+        internal static X509Certificate2 GetRemoteCertificate(
+            SafeSslHandle sslContext,
+            out X509Certificate2Collection remoteCertificateStore)
+        {
+            if (sslContext == null)
+            {
+                remoteCertificateStore = null;
+                return null;
+            }
+
+            remoteCertificateStore = new X509Certificate2Collection();
+            return GetRemoteCertificate(sslContext, remoteCertificateStore);
+        }
+
+        internal static X509Certificate2 GetRemoteCertificate(SafeX509StoreCtxHandle x509, out X509Certificate2Collection remoteCertificateStore)
+        {
+            bool gotReference = false;
+            X509Certificate2 result = null;
+            SafeFreeCertContext certContext = new SafeFreeCertContext(Interop.Crypto.X509StoreCtxGetCurrentCert(x509));
+
+            try
+            {
+                if (certContext != null && !certContext.IsInvalid)
+                {
+                    certContext.DangerousAddRef(ref gotReference);
+                    result = new X509Certificate2(certContext.DangerousGetHandle());
+                }
+
+                remoteCertificateStore = new X509Certificate2Collection();
+                using (SafeX509StackHandle chainStack = Interop.Crypto.X509StoreCtxGetChain(x509))
+                {
+                    if (!chainStack.IsInvalid)
+                    {
+                        int count = Interop.Crypto.GetX509StackFieldCount(chainStack);
+                        for (int i = 0; i < count; i++)
+                        {
+                            IntPtr certPtr = Interop.Crypto.GetX509StackField(chainStack, i);
+                            if (certPtr != IntPtr.Zero)
+                            {
+                                X509Certificate2 chainCert = new X509Certificate2(certPtr);
+                                remoteCertificateStore.Add(chainCert);
+                            }
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                if (gotReference)
+                {
+                    certContext.DangerousRelease();
+                }
+
+                if (certContext != null)
+                {
+                    certContext.Dispose();
+                }
+            }
+
+            return result;
+        }
+
+        private static X509Certificate2 GetRemoteCertificate(SafeSslHandle sslContext, X509Certificate2Collection remoteCertificateStore)
         {
             bool gotReference = false;
 
-            if (securityContext == null)
+            if (sslContext == null)
             {
                 return null;
             }
 
-            if (NetEventSource.IsEnabled) NetEventSource.Enter(securityContext);
+            if (NetEventSource.IsEnabled) NetEventSource.Enter(sslContext);
 
             X509Certificate2 result = null;
             SafeFreeCertContext remoteContext = null;
             try
             {
-                int errorCode = QueryContextRemoteCertificate(securityContext, out remoteContext);
+                int errorCode = QueryContextRemoteCertificate(sslContext, out remoteContext);
 
                 if (remoteContext != null && !remoteContext.IsInvalid)
                 {
@@ -70,7 +146,7 @@ namespace System.Net
                 if (remoteCertificateStore != null)
                 {
                     using (SafeSharedX509StackHandle chainStack =
-                        Interop.OpenSsl.GetPeerCertificateChain(((SafeDeleteSslContext)securityContext).SslContext))
+                        Interop.OpenSsl.GetPeerCertificateChain(sslContext))
                     {
                         if (!chainStack.IsInvalid)
                         {
@@ -107,7 +183,7 @@ namespace System.Net
             if (NetEventSource.IsEnabled)
             {
                 NetEventSource.Log.RemoteCertificate(result);
-                NetEventSource.Exit(securityContext, result);
+                NetEventSource.Exit(sslContext, result);
             }
             return result;
         }      
@@ -166,12 +242,12 @@ namespace System.Net
             return store;
         }
 
-        private static int QueryContextRemoteCertificate(SafeDeleteContext securityContext, out SafeFreeCertContext remoteCertContext)
+        private static int QueryContextRemoteCertificate(SafeSslHandle sslContext, out SafeFreeCertContext remoteCertContext)
         {
             remoteCertContext = null;
             try
             {
-                SafeX509Handle remoteCertificate = Interop.OpenSsl.GetPeerCertificate(((SafeDeleteSslContext)securityContext).SslContext);
+                SafeX509Handle remoteCertificate = Interop.OpenSsl.GetPeerCertificate(sslContext);
                 // Note that cert ownership is transferred to SafeFreeCertContext
                 remoteCertContext = new SafeFreeCertContext(remoteCertificate);
                 return 0;

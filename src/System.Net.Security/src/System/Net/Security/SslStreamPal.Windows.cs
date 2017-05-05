@@ -41,7 +41,7 @@ namespace System.Net.Security
             SSPIWrapper.GetVerifyPackageInfo(GlobalSSPI.SSPISecureChannel, SecurityPackage, true);
         }
 
-        public static SecurityStatusPal AcceptSecurityContext(ref SafeFreeCredentials credentialsHandle, ref SafeDeleteContext context, SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool remoteCertRequired)
+        public static SecurityStatusPal AcceptSecurityContext(ref SafeFreeCredentials credentialsHandle, ref SafeDeleteContext context, SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool remoteCertRequired, bool checkCertName, bool checkCertRevocation, string hostName, RemoteCertValidationCallback certValidationCallback)
         {
             Interop.SspiCli.ContextFlags unusedAttributes = default(Interop.SspiCli.ContextFlags);
 
@@ -58,7 +58,7 @@ namespace System.Net.Security
             return SecurityStatusAdapterPal.GetSecurityStatusPalFromNativeInt(errorCode);
         }
 
-        public static SecurityStatusPal InitializeSecurityContext(ref SafeFreeCredentials credentialsHandle, ref SafeDeleteContext context, string targetName, SecurityBuffer inputBuffer, SecurityBuffer outputBuffer)
+        public static SecurityStatusPal InitializeSecurityContext(ref SafeFreeCredentials credentialsHandle, ref SafeDeleteContext context, string targetName, SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool remoteCertRequired, bool checkCertName, bool checkCertRevocation, string hostName, RemoteCertValidationCallback certValidationCallback)
         {
             Interop.SspiCli.ContextFlags unusedAttributes = default(Interop.SspiCli.ContextFlags);
 
@@ -76,7 +76,7 @@ namespace System.Net.Security
             return SecurityStatusAdapterPal.GetSecurityStatusPalFromNativeInt(errorCode);
         }
 
-        public static SecurityStatusPal InitializeSecurityContext(SafeFreeCredentials credentialsHandle, ref SafeDeleteContext context, string targetName, SecurityBuffer[] inputBuffers, SecurityBuffer outputBuffer)
+        public static SecurityStatusPal InitializeSecurityContext(SafeFreeCredentials credentialsHandle, ref SafeDeleteContext context, string targetName, SecurityBuffer[] inputBuffers, SecurityBuffer outputBuffer, bool remoteCertRequired, bool checkCertName, bool checkCertRevocation, string hostName, RemoteCertValidationCallback certValidationCallback)
         {
             Interop.SspiCli.ContextFlags unusedAttributes = default(Interop.SspiCli.ContextFlags);
 

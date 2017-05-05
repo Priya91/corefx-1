@@ -134,7 +134,7 @@ namespace System.Net.Security
             try
             {
                 _context = new SecureChannel(targetHost, isServer, enabledSslProtocols, serverCertificate, clientCertificates, remoteCertRequired,
-                                                                 checkCertName, checkCertRevocationStatus, _encryptionPolicy, _certSelectionDelegate);
+                                                                 checkCertName, checkCertRevocationStatus, _encryptionPolicy, _certSelectionDelegate, _certValidationDelegate);
             }
             catch (Win32Exception e)
             {
@@ -1031,7 +1031,7 @@ namespace System.Net.Security
 
             Context.ProcessHandshakeSuccess();
 
-            if (!Context.VerifyRemoteCertificate(_certValidationDelegate, ref alertToken))
+            if (!Context.VerifyRemoteCertificate(ref alertToken))
             {
                 _handshakeCompleted = false;
                 _certValidationFailed = true;

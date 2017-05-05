@@ -321,6 +321,7 @@ int EC_POINT_set_affine_coordinates_GF2m(const EC_GROUP *group, EC_POINT *p,
     PER_FUNCTION_BLOCK(X509_STORE_CTX_free, true) \
     PER_FUNCTION_BLOCK(X509_STORE_CTX_get0_param, true) \
     PER_FUNCTION_BLOCK(X509_STORE_CTX_get1_chain, true) \
+    PER_FUNCTION_BLOCK(X509_STORE_CTX_get_current_cert, true) \
     PER_FUNCTION_BLOCK(X509_STORE_CTX_get_error, true) \
     PER_FUNCTION_BLOCK(X509_STORE_CTX_get_error_depth, true) \
     PER_FUNCTION_BLOCK(X509_STORE_CTX_init, true) \
@@ -611,6 +612,7 @@ FOR_ALL_OPENSSL_FUNCTIONS
 #define X509_STORE_CTX_free X509_STORE_CTX_free_ptr
 #define X509_STORE_CTX_get0_param X509_STORE_CTX_get0_param_ptr
 #define X509_STORE_CTX_get1_chain X509_STORE_CTX_get1_chain_ptr
+#define X509_STORE_CTX_get_current_cert X509_STORE_CTX_get_current_cert_ptr
 #define X509_STORE_CTX_get_error X509_STORE_CTX_get_error_ptr
 #define X509_STORE_CTX_get_error_depth X509_STORE_CTX_get_error_depth_ptr
 #define X509_STORE_CTX_init X509_STORE_CTX_init_ptr

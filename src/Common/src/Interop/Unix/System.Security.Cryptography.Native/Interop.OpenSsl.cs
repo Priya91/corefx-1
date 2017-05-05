@@ -19,8 +19,6 @@ internal static partial class Interop
 {
     internal static partial class OpenSsl
     {
-        private static Ssl.SslCtxSetVerifyCallback s_verifyClientCertificate = VerifyClientCertificate;
-
         #region internal methods
 
         internal static SafeChannelBindingHandle QueryChannelBinding(SafeSslHandle context, ChannelBindingKind bindingType)
@@ -46,7 +44,8 @@ internal static partial class Interop
             return bindingHandle;
         }
 
-        internal static SafeSslHandle AllocateSslContext(SslProtocols protocols, SafeX509Handle certHandle, SafeEvpPKeyHandle certKeyHandle, EncryptionPolicy policy, bool isServer, bool remoteCertRequired)
+        internal static SafeSslHandle AllocateSslContext(SslProtocols protocols, SafeX509Handle certHandle, SafeEvpPKeyHandle certKeyHandle, EncryptionPolicy policy, bool isServer, bool remoteCertRequired,
+            bool checkCertName, bool checkCertRevocation, string hostName, RemoteCertValidationCallback certValidationCallback)
         {
             SafeSslHandle context = null;
 
@@ -88,10 +87,6 @@ internal static partial class Interop
 
                 if (remoteCertRequired)
                 {
-                    Debug.Assert(isServer, "isServer flag should be true");
-                    Ssl.SslCtxSetVerify(innerContext,
-                        s_verifyClientCertificate);
-
                     //update the client CA list 
                     UpdateCAListFromRootStore(innerContext);
                 }
@@ -102,6 +97,17 @@ internal static partial class Interop
                 {
                     context.Dispose();
                     throw CreateSslException(SR.net_allocate_ssl_context_failed);
+                }
+
+                if (remoteCertRequired)
+                {
+                    // Set the user options to be used in verify certificate callback.
+                    context.CheckCertName = checkCertName;
+                    context.CheckCertRevocation = checkCertRevocation;
+                    context.HostName = hostName;
+                    context.CertValidationCallback = certValidationCallback;
+
+                    Ssl.SslSetVerify(context, context.VerifyCertificate);
                 }
 
                 if (hasCertificateAndKey)
@@ -350,17 +356,7 @@ internal static partial class Interop
 
             return method;
         }
-
-        private static int VerifyClientCertificate(int preverify_ok, IntPtr x509_ctx_ptr)
-        {
-            // Full validation is handled after the handshake in VerifyCertificateProperties and the
-            // user callback.  It's also up to those handlers to decide if a null certificate
-            // is appropriate.  So just return success to tell OpenSSL that the cert is acceptable,
-            // we'll process it after the handshake finishes.
-            const int OpenSslSuccess = 1;
-            return OpenSslSuccess;
-        }
-
+        
         private static void UpdateCAListFromRootStore(SafeSslContextHandle context)
         {
             using (SafeX509NameStackHandle nameStack = Crypto.NewX509NameStack())

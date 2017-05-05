@@ -499,6 +499,13 @@ extern "C" void CryptoNative_SslCtxSetVerify(SSL_CTX* ctx, SslCtxSetVerifyCallba
     SSL_CTX_set_verify(ctx, mode, callback);
 }
 
+extern "C" void CryptoNative_SslSetVerify(SSL* ssl, SslSetVerifyCallback callback)
+{
+    int mode = SSL_VERIFY_PEER;
+
+    SSL_set_verify(ssl, mode, callback);
+}
+
 extern "C" void
 CryptoNative_SslCtxSetCertVerifyCallback(SSL_CTX* ctx, SslCtxSetCertVerifyCallbackCallback callback, void* arg)
 {

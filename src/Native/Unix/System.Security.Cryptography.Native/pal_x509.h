@@ -232,6 +232,11 @@ Shims the X509_STORE_CTX_get1_chain method.
 extern "C" X509Stack* CryptoNative_X509StoreCtxGetChain(X509_STORE_CTX* ctx);
 
 /*
+Shims the X509_STORE_CTX_get_current_cert method. 
+*/
+extern "C" X509* CryptoNative_X509StoreCtxGetCurrentCert(X509_STORE_CTX* ctx);
+
+/*
 Returns the interior pointer to the "untrusted" certificates collection for this X509_STORE_CTX
 */
 extern "C" X509Stack* CryptoNative_X509StoreCtxGetSharedUntrusted(X509_STORE_CTX* ctx);

@@ -112,6 +112,9 @@ enum SslErrorCode : int32_t
 // the function pointer definition for the callback used in SslCtxSetVerify
 typedef int32_t (*SslCtxSetVerifyCallback)(int32_t, X509_STORE_CTX*);
 
+// the function pointer definition for the callback used in SslSetVerify
+typedef int32_t(*SslSetVerifyCallback)(int32_t, X509_STORE_CTX*);
+
 // the function pointer definition for the callback used in SslCtxSetCertVerifyCallback
 typedef int32_t (*SslCtxSetCertVerifyCallbackCallback)(X509_STORE_CTX*, void* arg);
 
@@ -347,6 +350,11 @@ extern "C" X509NameStack* CryptoNative_SslGetClientCAList(SSL* ssl);
 Shims the SSL_CTX_set_verify method.
 */
 extern "C" void CryptoNative_SslCtxSetVerify(SSL_CTX* ctx, SslCtxSetVerifyCallback callback);
+
+/*
+Shims the SSL_set_verify method.
+*/
+extern "C" void CryptoNative_SslSetVerify(SSL* ssl, SslSetVerifyCallback callback);
 
 /*
 Shims the SSL_CTX_set_cert_verify_callback method.

@@ -29,22 +29,23 @@ namespace System.Net.Security
         }
 
         public static SecurityStatusPal AcceptSecurityContext(ref SafeFreeCredentials credential, ref SafeDeleteContext context,
-            SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool remoteCertRequired)
+            SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool remoteCertRequired, bool checkCertName, bool checkCertRevocation, string hostName, RemoteCertValidationCallback certificateCallback)
         {
-            return HandshakeInternal(credential, ref context, inputBuffer, outputBuffer, true, remoteCertRequired);
+            return HandshakeInternal(credential, ref context, inputBuffer, outputBuffer, true, remoteCertRequired, checkCertName, checkCertRevocation, hostName, certificateCallback);
         }
 
         public static SecurityStatusPal InitializeSecurityContext(ref SafeFreeCredentials credential, ref SafeDeleteContext context,
-            string targetName, SecurityBuffer inputBuffer, SecurityBuffer outputBuffer)
+            string targetName, SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool remoteCertRequired, bool checkCertName, bool checkCertRevocation, string hostName, RemoteCertValidationCallback certificateCallback)
         {        
-            return HandshakeInternal(credential, ref context, inputBuffer, outputBuffer, false, false);
+            return HandshakeInternal(credential, ref context, inputBuffer, outputBuffer, false, remoteCertRequired, checkCertName, checkCertRevocation, hostName, certificateCallback);
         }
 
-        public static SecurityStatusPal InitializeSecurityContext(SafeFreeCredentials credential, ref SafeDeleteContext context, string targetName, SecurityBuffer[] inputBuffers, SecurityBuffer outputBuffer)
+        public static SecurityStatusPal InitializeSecurityContext(SafeFreeCredentials credential, ref SafeDeleteContext context, string targetName, SecurityBuffer[] inputBuffers, SecurityBuffer outputBuffer,
+            bool remoteCertRequired, bool checkCertName, bool checkCertRevocation, string hostName, RemoteCertValidationCallback certificateCallback)
         {          
             Debug.Assert(inputBuffers.Length == 2);
             Debug.Assert(inputBuffers[1].token == null);
-            return HandshakeInternal(credential, ref context, inputBuffers[0], outputBuffer, false, false);
+            return HandshakeInternal(credential, ref context, inputBuffers[0], outputBuffer, false, remoteCertRequired, checkCertName, checkCertRevocation, hostName, certificateCallback);
         }
 
         public static SafeFreeCredentials AcquireCredentialsHandle(X509Certificate certificate,
@@ -104,7 +105,8 @@ namespace System.Net.Security
         }
 
         private static SecurityStatusPal HandshakeInternal(SafeFreeCredentials credential, ref SafeDeleteContext context,
-            SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool isServer, bool remoteCertRequired)
+            SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool isServer, bool remoteCertRequired,
+            bool checkCertName = false, bool checkCertRevocation = false, string hostName = null, RemoteCertValidationCallback certificateCallback = null)
         {
             Debug.Assert(!credential.IsInvalid);
 
@@ -112,7 +114,7 @@ namespace System.Net.Security
             {
                 if ((null == context) || context.IsInvalid)
                 {
-                    context = new SafeDeleteSslContext(credential as SafeFreeSslCredentials, isServer, remoteCertRequired);
+                    context = new SafeDeleteSslContext(credential as SafeFreeSslCredentials, isServer, remoteCertRequired, checkCertName, checkCertRevocation, hostName, certificateCallback);
                 }
 
                 byte[] output = null;

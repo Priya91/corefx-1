@@ -12,8 +12,6 @@ internal static partial class Interop
 {
     internal static partial class Ssl
     {
-        internal delegate int SslCtxSetVerifyCallback(int preverify_ok, IntPtr x509_ctx);
-
         [DllImport(Libraries.CryptoNative, EntryPoint = "CryptoNative_EnsureLibSslInitialized")]
         internal static extern void EnsureLibSslInitialized();
 
@@ -184,7 +182,7 @@ internal static partial class Interop
 
 namespace Microsoft.Win32.SafeHandles
 {
-    internal sealed class SafeSslHandle : SafeHandle
+    internal sealed partial class SafeSslHandle : SafeHandle
     {
         private SafeBioHandle _readBio;
         private SafeBioHandle _writeBio;

@@ -15,6 +15,8 @@ internal static partial class Interop
 {
     internal static partial class Ssl
     {
+        internal delegate int SslCtxSetVerifyCallback(int preverify_ok, IntPtr x509_ctx);
+
         [DllImport(Libraries.CryptoNative, EntryPoint = "CryptoNative_SslCtxUseCertificate")]
         internal static extern int SslCtxUseCertificate(SafeSslContextHandle ctx, SafeX509Handle certPtr);
 

@@ -14,7 +14,6 @@ namespace System.Net
     internal static partial class CertificateValidationPal
     {
         internal static SslPolicyErrors VerifyCertificateProperties(
-            SafeDeleteContext securityContext,
             X509Chain chain,
             X509Certificate2 remoteCertificate,
             bool checkCertName,
@@ -74,6 +73,65 @@ namespace System.Net
             }
 
             return sslPolicyErrors;
+        }
+
+        internal static bool VerifyRemoteCertificate(
+            SafeDeleteContext context,
+            bool checkCertName,
+            bool serverMode,
+            bool remoteCertRequired,
+            bool checkCertRevocation,
+            string hostName,
+            RemoteCertValidationCallback remoteCertValidationCallback,
+            ref X509Certificate2 remoteCertificateEx,
+            ref X509Chain chain,
+            ref SslPolicyErrors sslPolicyErrors)
+        {
+            // We don't catch exceptions in this method, so it's safe for "accepted" be initialized with true.
+            bool success = false;
+            X509Certificate2Collection remoteCertificateStore;
+            remoteCertificateEx = CertificateValidationPal.GetRemoteCertificate(context, out remoteCertificateStore);
+
+            if (remoteCertificateEx == null)
+            {
+                if (NetEventSource.IsEnabled) NetEventSource.Exit(null, "(no remote cert)", !remoteCertRequired);
+                sslPolicyErrors |= SslPolicyErrors.RemoteCertificateNotAvailable;
+            }
+            else
+            {
+                chain = new X509Chain();
+                chain.ChainPolicy.RevocationMode = checkCertRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck;
+                chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;
+                if (remoteCertificateStore != null)
+                {
+                    chain.ChainPolicy.ExtraStore.AddRange(remoteCertificateStore);
+                }
+
+                sslPolicyErrors |= CertificateValidationPal.VerifyCertificateProperties(
+                    chain,
+                    remoteCertificateEx,
+                    checkCertName,
+                    serverMode,
+                    hostName);
+            }
+
+            if (remoteCertValidationCallback != null)
+            {
+                success = remoteCertValidationCallback(hostName, remoteCertificateEx, chain, sslPolicyErrors);
+            }
+            else
+            {
+                if (sslPolicyErrors == SslPolicyErrors.RemoteCertificateNotAvailable && !remoteCertRequired)
+                {
+                    success = true;
+                }
+                else
+                {
+                    success = (sslPolicyErrors == SslPolicyErrors.None);
+                }
+            }
+
+            return success;
         }
 
         //
