@@ -38,7 +38,8 @@ namespace System.Net.Security
             ref SafeDeleteContext context,
             SecurityBuffer inputBuffer,
             SecurityBuffer outputBuffer,
-            bool remoteCertRequired)
+            bool remoteCertRequired,
+            Func<int, IntPtr, int> certValidationDelegate)
         {
             return HandshakeInternal(credential, ref context, inputBuffer, outputBuffer, true, remoteCertRequired, null);
         }

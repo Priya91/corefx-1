@@ -29,22 +29,22 @@ namespace System.Net.Security
         }
 
         public static SecurityStatusPal AcceptSecurityContext(ref SafeFreeCredentials credential, ref SafeDeleteContext context,
-            SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool remoteCertRequired)
+            SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool remoteCertRequired, Func<int, IntPtr, int> certValidationDelegate)
         {
-            return HandshakeInternal(credential, ref context, inputBuffer, outputBuffer, true, remoteCertRequired);
+            return HandshakeInternal(credential, ref context, inputBuffer, outputBuffer, true, remoteCertRequired, certValidationDelegate);
         }
 
         public static SecurityStatusPal InitializeSecurityContext(ref SafeFreeCredentials credential, ref SafeDeleteContext context,
             string targetName, SecurityBuffer inputBuffer, SecurityBuffer outputBuffer)
         {        
-            return HandshakeInternal(credential, ref context, inputBuffer, outputBuffer, false, false);
+            return HandshakeInternal(credential, ref context, inputBuffer, outputBuffer, false, false, null);
         }
 
         public static SecurityStatusPal InitializeSecurityContext(SafeFreeCredentials credential, ref SafeDeleteContext context, string targetName, SecurityBuffer[] inputBuffers, SecurityBuffer outputBuffer)
         {          
             Debug.Assert(inputBuffers.Length == 2);
             Debug.Assert(inputBuffers[1].token == null);
-            return HandshakeInternal(credential, ref context, inputBuffers[0], outputBuffer, false, false);
+            return HandshakeInternal(credential, ref context, inputBuffers[0], outputBuffer, false, false, null);
         }
 
         public static SafeFreeCredentials AcquireCredentialsHandle(X509Certificate certificate,
@@ -104,7 +104,7 @@ namespace System.Net.Security
         }
 
         private static SecurityStatusPal HandshakeInternal(SafeFreeCredentials credential, ref SafeDeleteContext context,
-            SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool isServer, bool remoteCertRequired)
+            SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool isServer, bool remoteCertRequired, Func<int, IntPtr, int> certValidationDelegate)
         {
             Debug.Assert(!credential.IsInvalid);
 
@@ -112,7 +112,7 @@ namespace System.Net.Security
             {
                 if ((null == context) || context.IsInvalid)
                 {
-                    context = new SafeDeleteSslContext(credential as SafeFreeSslCredentials, isServer, remoteCertRequired);
+                    context = new SafeDeleteSslContext(credential as SafeFreeSslCredentials, isServer, remoteCertRequired, certValidationDelegate);
                 }
 
                 byte[] output = null;

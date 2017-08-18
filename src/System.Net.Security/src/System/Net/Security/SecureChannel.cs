@@ -38,6 +38,7 @@ namespace System.Net.Security
 
         private X509CertificateCollection _clientCertificates;
         private LocalCertSelectionCallback _certSelectionDelegate;
+        private RemoteCertValidationCallback _certValidationDelegate;
 
         // These are the MAX encrypt buffer output sizes, not the actual sizes.
         private int _headerSize = 5; //ATTN must be set to at least 5 by default
@@ -53,7 +54,7 @@ namespace System.Net.Security
         private readonly Oid _clientAuthOid = new Oid("1.3.6.1.5.5.7.3.2", "1.3.6.1.5.5.7.3.2");
 
         internal SecureChannel(string hostname, bool serverMode, SslProtocols sslProtocols, X509Certificate serverCertificate, X509CertificateCollection clientCertificates, bool remoteCertRequired, bool checkCertName,
-                                                  bool checkCertRevocationStatus, EncryptionPolicy encryptionPolicy, LocalCertSelectionCallback certSelectionDelegate)
+                                                  bool checkCertRevocationStatus, EncryptionPolicy encryptionPolicy, LocalCertSelectionCallback certSelectionDelegate, RemoteCertValidationCallback certValidationDelegate)
         {
             if (NetEventSource.IsEnabled)
             {
@@ -81,6 +82,7 @@ namespace System.Net.Security
             _checkCertRevocation = checkCertRevocationStatus;
             _checkCertName = checkCertName;
             _certSelectionDelegate = certSelectionDelegate;
+            _certValidationDelegate = certValidationDelegate;
             _refreshCredentialNeeded = true;
             _encryptionPolicy = encryptionPolicy;
             
@@ -793,7 +795,8 @@ namespace System.Net.Security
                                       ref _securityContext,
                                       incomingSecurity,
                                       outgoingSecurity,
-                                      _remoteCertRequired);
+                                      _remoteCertRequired,
+                                      VerifyRemoteCertificateCallback);
                     }
                     else
                     {
@@ -969,6 +972,83 @@ namespace System.Net.Security
             SecurityStatusPal secStatus = SslStreamPal.DecryptMessage(_securityContext, payload, ref offset, ref count);
 
             return secStatus;
+        }
+
+        private int VerifyRemoteCertificateCallback(int preverify_ok, IntPtr x509_ctx_ptr)
+        {
+            SslPolicyErrors sslPolicyErrors = SslPolicyErrors.None;
+
+            // We don't catch exceptions in this method, so it's safe for "accepted" be initialized with true.
+            bool success = false;
+            X509Chain chain = null;
+            X509Certificate2 remoteCertificateEx = null;
+
+            try
+            {
+                X509Certificate2Collection remoteCertificateStore;
+                remoteCertificateEx = CertificateValidationPal.GetRemoteCertificate(_securityContext, out remoteCertificateStore);
+                _isRemoteCertificateAvailable = remoteCertificateEx != null;
+
+                if (remoteCertificateEx == null)
+                {
+                    if (NetEventSource.IsEnabled) NetEventSource.Exit(this, "(no remote cert)", !_remoteCertRequired);
+                    sslPolicyErrors |= SslPolicyErrors.RemoteCertificateNotAvailable;
+                }
+                else
+                {
+                    chain = new X509Chain();
+                    chain.ChainPolicy.RevocationMode = _checkCertRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck;
+                    chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;
+
+                    // Authenticate the remote party: (e.g. when operating in server mode, authenticate the client).
+                    chain.ChainPolicy.ApplicationPolicy.Add(_serverMode ? _clientAuthOid : _serverAuthOid);
+
+                    if (remoteCertificateStore != null)
+                    {
+                        chain.ChainPolicy.ExtraStore.AddRange(remoteCertificateStore);
+                    }
+
+                    sslPolicyErrors |= CertificateValidationPal.VerifyCertificateProperties(
+                        _securityContext,
+                        chain,
+                        remoteCertificateEx,
+                        _checkCertName,
+                        _serverMode,
+                        _hostName);
+                }
+
+                if (_certValidationDelegate != null)
+                {
+                    success = _certValidationDelegate(_hostName, remoteCertificateEx, chain, sslPolicyErrors);
+                }
+                else
+                {
+                    if (sslPolicyErrors == SslPolicyErrors.RemoteCertificateNotAvailable && !_remoteCertRequired)
+                    {
+                        success = true;
+                    }
+                    else
+                    {
+                        success = (sslPolicyErrors == SslPolicyErrors.None);
+                    }
+                }
+            }
+            finally
+            {
+                // At least on Win2k server the chain is found to have dependencies on the original cert context.
+                // So it should be closed first.
+                if (chain != null)
+                {
+                    chain.Dispose();
+                }
+
+                if (remoteCertificateEx != null)
+                {
+                    remoteCertificateEx.Dispose();
+                }
+            }
+
+            return success ? 1 : 0;
         }
 
         /*++

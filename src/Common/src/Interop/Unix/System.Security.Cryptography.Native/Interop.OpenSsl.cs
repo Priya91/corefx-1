@@ -46,7 +46,7 @@ internal static partial class Interop
             return bindingHandle;
         }
 
-        internal static SafeSslHandle AllocateSslContext(SslProtocols protocols, SafeX509Handle certHandle, SafeEvpPKeyHandle certKeyHandle, EncryptionPolicy policy, bool isServer, bool remoteCertRequired)
+        internal static SafeSslHandle AllocateSslContext(SslProtocols protocols, SafeX509Handle certHandle, SafeEvpPKeyHandle certKeyHandle, EncryptionPolicy policy, bool isServer, bool remoteCertRequired, Ssl.SslCtxSetVerifyCallback certValidationCallback)
         {
             SafeSslHandle context = null;
 
@@ -91,7 +91,7 @@ internal static partial class Interop
                 {
                     Debug.Assert(isServer, "isServer flag should be true");
                     Ssl.SslCtxSetVerify(innerContext,
-                        s_verifyClientCertificate);
+                        certValidationCallback);
 
                     //update the client CA list 
                     UpdateCAListFromRootStore(innerContext);
