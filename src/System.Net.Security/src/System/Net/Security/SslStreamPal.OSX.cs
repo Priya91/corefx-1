@@ -39,7 +39,7 @@ namespace System.Net.Security
             SecurityBuffer inputBuffer,
             SecurityBuffer outputBuffer,
             bool remoteCertRequired,
-            Func<int, IntPtr, int> certValidationDelegate)
+            Func<int> certValidationDelegate)
         {
             return HandshakeInternal(credential, ref context, inputBuffer, outputBuffer, true, remoteCertRequired, null);
         }

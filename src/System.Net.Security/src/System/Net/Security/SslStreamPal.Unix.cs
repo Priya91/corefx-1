@@ -29,7 +29,7 @@ namespace System.Net.Security
         }
 
         public static SecurityStatusPal AcceptSecurityContext(ref SafeFreeCredentials credential, ref SafeDeleteContext context,
-            SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool remoteCertRequired, Func<int, IntPtr, int> certValidationDelegate)
+            SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool remoteCertRequired, Func<int> certValidationDelegate)
         {
             return HandshakeInternal(credential, ref context, inputBuffer, outputBuffer, true, remoteCertRequired, certValidationDelegate);
         }
@@ -104,7 +104,7 @@ namespace System.Net.Security
         }
 
         private static SecurityStatusPal HandshakeInternal(SafeFreeCredentials credential, ref SafeDeleteContext context,
-            SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool isServer, bool remoteCertRequired, Func<int, IntPtr, int> certValidationDelegate)
+            SecurityBuffer inputBuffer, SecurityBuffer outputBuffer, bool isServer, bool remoteCertRequired, Func<int> certValidationDelegate)
         {
             Debug.Assert(!credential.IsInvalid);
 

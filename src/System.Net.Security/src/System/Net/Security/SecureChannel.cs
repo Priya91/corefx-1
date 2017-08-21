@@ -974,7 +974,7 @@ namespace System.Net.Security
             return secStatus;
         }
 
-        private int VerifyRemoteCertificateCallback(int preverify_ok, IntPtr x509_ctx_ptr)
+        private int VerifyRemoteCertificateCallback()
         {
             SslPolicyErrors sslPolicyErrors = SslPolicyErrors.None;
 
