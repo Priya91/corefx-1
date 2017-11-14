@@ -170,7 +170,6 @@ namespace System.Net.Security.Tests
         }
 
         [Fact]
-        [ActiveIssue(24853)]
         [PlatformSpecific(~TestPlatforms.OSX)]
         public void SslStream_StreamToStream_Alpn_NonMatchingProtocols_Fail()
         {
