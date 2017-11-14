@@ -1386,11 +1386,12 @@ namespace System.Net.Security
 
             lock (this)
             {
-                HandleWriteCallback();
+                WaitCallback wc = new WaitCallback(AsyncResumeHandshake);
+                HandleWriteCallback(wc);
             }
         }
 
-        private void HandleWriteCallback()
+        private void HandleWriteCallback(WaitCallback wc)
         {
             object obj = _queuedWriteStateRequest;
             _queuedWriteStateRequest = null;
@@ -1405,7 +1406,7 @@ namespace System.Net.Security
                     tsc.SetResult(0);
                     break;
                 default:
-                    ThreadPool.QueueUserWorkItem(new WaitCallback(AsyncResumeHandshake), obj);
+                    ThreadPool.QueueUserWorkItem(wc, obj);
                     break;
             }
         }
@@ -1467,7 +1468,8 @@ namespace System.Net.Security
                     }
 
                     _lockWriteState = LockWrite;
-                    HandleWriteCallback();
+                    WaitCallback wc = new WaitCallback(CompleteRequestWaitCallback);
+                    HandleWriteCallback(wc);
                 }
             }
             finally
