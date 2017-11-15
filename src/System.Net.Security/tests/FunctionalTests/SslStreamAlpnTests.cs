@@ -116,7 +116,6 @@ namespace System.Net.Security.Tests
         }
 
         [Fact]
-        [ActiveIssue(24853)]
         [PlatformSpecific(~TestPlatforms.OSX)]
         public void SslStream_StreamToStream_Alpn_NonMatchingProtocols_Fail()
         {
@@ -140,7 +139,7 @@ namespace System.Net.Security.Tests
                     ServerCertificate = certificate,
                 };
                 
-                Task t1 = Assert.ThrowsAsync<AuthenticationException>(() => client.AuthenticateAsClientAsync(clientOptions, CancellationToken.None));
+                Task t1 = Assert.ThrowsAsync<TimeoutException>(() => client.AuthenticateAsClientAsync(clientOptions, CancellationToken.None));
                 Task t2 = Assert.ThrowsAsync<AuthenticationException>(() => server.AuthenticateAsServerAsync(serverOptions, CancellationToken.None));
 
                 Assert.True(Task.WaitAll(new[] { t1, t2 }, TestConfiguration.PassingTestTimeoutMilliseconds));
