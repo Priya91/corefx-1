@@ -157,14 +157,14 @@ namespace System.Net.Security.Tests
                                 server.Dispose();
                             }, TaskScheduler.Default);
 
-                            Assert.True(Task.WaitAll(new[] { t1, t2 }, TestConfiguration.PassingTestTimeoutMilliseconds));
+                            await TestConfiguration.WhenAllOrAnyFailedWithTimeout(t1, t2);
                         }
                         else
                         {
                             Task t1 = clientStream.AuthenticateAsClientAsync(clientOptions, CancellationToken.None);
                             Task t2 = serverStream.AuthenticateAsServerAsync(serverOptions, CancellationToken.None);
 
-                            Assert.True(Task.WaitAll(new[] { t1, t2 }, TestConfiguration.PassingTestTimeoutMilliseconds));
+                            await TestConfiguration.WhenAllOrAnyFailedWithTimeout(t1, t2);
 
                             Assert.Equal(default(SslApplicationProtocol), clientStream.NegotiatedApplicationProtocol);
                             Assert.Equal(default(SslApplicationProtocol), serverStream.NegotiatedApplicationProtocol);

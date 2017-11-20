@@ -164,9 +164,7 @@ namespace System.Net.Security
                 // If it was, then that indiciates ALPN failed, send failure.
                 // We have this workaround, as openssl supports terminating handshake only from version 1.1.0,
                 // whereas ALPN is supported from version 1.0.2.
-                SafeSslHandle sslContext = ((SafeDeleteSslContext)context).SslContext;
-                if (done && sslAuthenticationOptions.IsServer && sslAuthenticationOptions.ApplicationProtocols != null &&
-                    sslContext.AlpnHandle.IsAllocated && sslContext.AlpnHandle.Target == null)
+                if (done && sslAuthenticationOptions.IsServer && sslAuthenticationOptions.ApplicationProtocols != null && ((SafeDeleteSslContext)context).SslContext.AlpnHandle.Target == null)
                 {
                     throw Interop.OpenSsl.CreateSslException(SR.net_alpn_failed);
                 }
