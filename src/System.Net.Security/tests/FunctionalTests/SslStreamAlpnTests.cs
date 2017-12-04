@@ -22,12 +22,12 @@ namespace System.Net.Security.Tests
 
     public class SslStreamAlpnTests
     {
-        private static bool BackendSupportsAlpn =>
-#if TargetsLinux
-            Interop.OpenSsl.OpenSslVersion.Major >= 1 && (Interop.OpenSsl.OpenSslVersion.Minor >= 1 || Interop.OpenSsl.OpenSslVersion.Build >= 2);
-#else
-            PlatformDetection.IsWindows && !PlatformDetection.IsWindows7;
-#endif
+        // Windows - Schannel supports alpn from win8 and higher.
+        // Linux - OpenSsl supports alpn from openssl 1.0.2 and higher.
+        // OSX - SecureTransport doesn't expose alpn APIs.
+        private static bool BackendSupportsAlpn => (PlatformDetection.IsWindows && !PlatformDetection.IsWindows7) ||
+            (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) &&
+            (PlatformDetection.OpenSslVersion.Major >= 1 && (PlatformDetection.OpenSslVersion.Minor >= 1 || PlatformDetection.OpenSslVersion.Build >= 2)));
 
         private async Task DoHandshakeWithOptions(SslStream clientSslStream, SslStream serverSslStream, SslClientAuthenticationOptions clientOptions, SslServerAuthenticationOptions serverOptions)
         {
