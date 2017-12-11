@@ -185,6 +185,53 @@ namespace System.Net.Security.Tests
             }
         }
 
+        public static bool ValidateServerCertificate(object sender,
+                                                     X509Certificate certificate,
+                                                     X509Chain chain,
+                                                     SslPolicyErrors sslPolicyErrors)
+        {
+            //
+            // We expect the received chain lenght to be 2, it should contain the Intermediate
+            // CA but not the Root CA
+            //
+            Console.WriteLine("Chain length: {0}", chain.ChainElements.Count);
+            for (int i = 0; i < chain.ChainElements.Count; i++)
+            {
+                Console.WriteLine(chain.ChainElements[i].Certificate.SubjectName.Name);
+            }
+
+            return true;
+        }
+
+        public static void RunClient(string host)
+        {
+            TcpClient client = new TcpClient(host, 10010);
+            Console.WriteLine("Client connected.");
+            SslStream sslStream = new SslStream(client.GetStream(),
+                                                false,
+                                                new RemoteCertificateValidationCallback(ValidateServerCertificate),
+                                                null);
+            try
+            {
+                sslStream.AuthenticateAsClient(host);
+            }
+            catch (AuthenticationException e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
+                return;
+            }
+            client.Close();
+            Console.WriteLine("Client closed.");
+        }
+
+        [Fact]
+        [Trait("category", "mytest")]
+        public void TestSslStreamCert()
+        {
+            string host = "127.0.0.1";
+            RunClient(host);
+        }
+
         [Fact]
         public async Task SslStream_StreamToStream_ClientCancellation_Throws()
         {

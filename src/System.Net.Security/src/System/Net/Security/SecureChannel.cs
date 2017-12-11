@@ -990,6 +990,12 @@ namespace System.Net.Security
             {
                 X509Certificate2Collection remoteCertificateStore;
                 remoteCertificateEx = CertificateValidationPal.GetRemoteCertificate(_securityContext, out remoteCertificateStore);
+                Console.WriteLine("[SourceCode] RemoteCertificate Count: {0}", remoteCertificateStore.Count);
+                for (int i = 0; i < remoteCertificateStore.Count; i++)
+                {
+                    Console.WriteLine("[SourceCode] Certificate {0}: {1}", i, remoteCertificateStore[i].SubjectName.Name);
+                }
+
                 _isRemoteCertificateAvailable = remoteCertificateEx != null;
 
                 if (remoteCertificateEx == null)
