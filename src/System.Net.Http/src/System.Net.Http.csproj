@@ -28,6 +28,7 @@
   </PropertyGroup>
   <!-- Common -->
   <ItemGroup>
+    <Reference Include="System.Console" />
     <Compile Include="System\Net\Http\ByteArrayContent.cs" />
     <Compile Include="System\Net\Http\ByteArrayHelpers.cs" />
     <Compile Include="System\Net\Http\ClientCertificateOption.cs" />

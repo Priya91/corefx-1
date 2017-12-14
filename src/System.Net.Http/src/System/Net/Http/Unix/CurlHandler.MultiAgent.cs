@@ -104,7 +104,9 @@ namespace System.Net.Http
                 lock (_incomingRequests)
                 {
                     // Add the request, then initiate processing.
+                    Console.WriteLine("Before enqueue: {0}", _incomingRequests.Count);
                     _incomingRequests.Enqueue(request);
+                    Console.WriteLine("After enqueue: {0}", _incomingRequests.Count);
                     EnsureWorkerIsRunning();
                 }
             }
@@ -135,6 +137,7 @@ namespace System.Net.Http
 
                 if (_runningWorker == null)
                 {
+                    Console.WriteLine("Multiagent new worker being created.");
                     EventSourceTrace("MultiAgent worker queueing");
 
                     // Ensure we've created the multi handle for this agent.
@@ -181,6 +184,7 @@ namespace System.Net.Http
                     // However, if there aren't any queued requests, Process could be blocked inside of
                     // curl_multi_wait, and we want to make sure it wakes up to see that there additional
                     // requests waiting to be handled.  So we write to the wakeup pipe.
+                    Console.WriteLine("Resusing running worker.");
                     Debug.Assert(_incomingRequests.Count >= 1, "We just queued a request, so the count should be at least 1");
                     if (_incomingRequests.Count == 1)
                     {
