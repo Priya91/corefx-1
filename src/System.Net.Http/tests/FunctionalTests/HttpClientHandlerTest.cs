@@ -21,6 +21,27 @@ using Xunit.Abstractions;
 namespace System.Net.Http.Functional.Tests
 {
     using Configuration = System.Net.Test.Common.Configuration;
+    public class HttpClientHandlerTest_ASPNET_repro
+    {
+        [Fact]
+        [Trait("category", "mytest")]
+        public async Task TestMethod()
+        {
+            var cts = new CancellationTokenSource();
+            Console.CancelKeyPress += (sender, e) => cts.Cancel();
+            
+            while (!cts.IsCancellationRequested)
+            {
+                var client = new HttpClient();
+                var content = await client.GetStringAsync("http://www.foo.com");
+                Console.WriteLine("Content: " + DateTime.Now + ": " + content);
+                                    
+                client = null;
+                
+                await Task.Delay(2000);
+            }
+        }
+    }
 
     // Note:  Disposing the HttpClient object automatically disposes the handler within. So, it is not necessary
     // to separately Dispose (or have a 'using' statement) for the handler.
