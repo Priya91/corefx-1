@@ -225,10 +225,13 @@ namespace System.Net.Test.Common
                 if (trimmedValue.Contains(nameof(username)))
                 {
                     // Username is a quoted string.
-                    int startIndex = trimmedValue.IndexOf('"') + 1;
+                    int startIndex = trimmedValue.IndexOf('"');
 
                     if (startIndex != -1)
+                    {
+                        startIndex += 1;
                         username = trimmedValue.Substring(startIndex, trimmedValue.Length - startIndex - 1);
+                    }
 
                     // Username is mandatory.
                     if (string.IsNullOrEmpty(username))
@@ -240,9 +243,12 @@ namespace System.Net.Test.Common
                 }
                 else if (trimmedValue.Contains(nameof(uri)))
                 {
-                    int startIndex = trimmedValue.IndexOf('"') + 1;
+                    int startIndex = trimmedValue.IndexOf('"');
                     if (startIndex != -1)
+                    {
+                        startIndex += 1;
                         uri = trimmedValue.Substring(startIndex, trimmedValue.Length - startIndex - 1);
+                    }
 
                     // Request uri is mandatory.
                     if (string.IsNullOrEmpty(uri))
@@ -251,9 +257,12 @@ namespace System.Net.Test.Common
                 else if (trimmedValue.Contains(nameof(realm)))
                 {
                     // Realm is a quoted string.
-                    int startIndex = trimmedValue.IndexOf('"') + 1;
+                    int startIndex = trimmedValue.IndexOf('"');
                     if (startIndex != -1)
+                    {
+                        startIndex += 1;
                         realm = trimmedValue.Substring(startIndex, trimmedValue.Length - startIndex - 1);
+                    }
 
                     // Realm is mandatory.
                     if (string.IsNullOrEmpty(realm))
@@ -262,16 +271,22 @@ namespace System.Net.Test.Common
                 else if (trimmedValue.Contains(nameof(cnonce)))
                 {
                     // CNonce is a quoted string.
-                    int startIndex = trimmedValue.IndexOf('"') + 1;
+                    int startIndex = trimmedValue.IndexOf('"');
                     if (startIndex != -1)
+                    {
+                        startIndex += 1;
                         cnonce = trimmedValue.Substring(startIndex, trimmedValue.Length - startIndex - 1);
+                    }
                 }
                 else if (trimmedValue.Contains(nameof(nonce)))
                 {
                     // Nonce is a quoted string.
-                    int startIndex = trimmedValue.IndexOf('"') + 1;
+                    int startIndex = trimmedValue.IndexOf('"');
                     if (startIndex != -1)
+                    {
+                        startIndex += 1;
                         nonce = trimmedValue.Substring(startIndex, trimmedValue.Length - startIndex - 1);
+                    }
 
                     // Nonce is mandatory.
                     if (string.IsNullOrEmpty(nonce))
@@ -280,9 +295,12 @@ namespace System.Net.Test.Common
                 else if (trimmedValue.Contains(nameof(response)))
                 {
                     // response is a quoted string.
-                    int startIndex = trimmedValue.IndexOf('"') + 1;
+                    int startIndex = trimmedValue.IndexOf('"');
                     if (startIndex != -1)
+                    {
+                        startIndex += 1;
                         response = trimmedValue.Substring(startIndex, trimmedValue.Length - startIndex - 1);
+                    }
 
                     // Response is mandatory.
                     if (string.IsNullOrEmpty(response))
@@ -290,9 +308,12 @@ namespace System.Net.Test.Common
                 }
                 else if (trimmedValue.Contains(nameof(algorithm)))
                 {
-                    int startIndex = trimmedValue.IndexOf('=') + 1;
+                    int startIndex = trimmedValue.IndexOf('=');
                     if (startIndex != -1)
+                    {
+                        startIndex += 1;
                         algorithm = trimmedValue.Substring(startIndex, trimmedValue.Length - startIndex).Trim();
+                    }
 
                     if (string.IsNullOrEmpty(algorithm))
                         algorithm = "sha-256";
@@ -300,21 +321,30 @@ namespace System.Net.Test.Common
                 else if (trimmedValue.Contains(nameof(opaque)))
                 {
                     // Opaque is a quoted string.
-                    int startIndex = trimmedValue.IndexOf('"') + 1;
+                    int startIndex = trimmedValue.IndexOf('"');
                     if (startIndex != -1)
+                    {
+                        startIndex += 1;
                         opaque = trimmedValue.Substring(startIndex, trimmedValue.Length - startIndex - 1);
+                    }
                 }
                 else if (trimmedValue.Contains(nameof(qop)))
                 {
-                    int startIndex = trimmedValue.IndexOf('=') + 1;
+                    int startIndex = trimmedValue.IndexOf('=');
                     if (startIndex != -1)
+                    {
+                        startIndex += 1;
                         qop = trimmedValue.Substring(startIndex, trimmedValue.Length - startIndex).Trim();
+                    }
                 }
                 else if (trimmedValue.Contains(nameof(nc)))
                 {
-                    int startIndex = trimmedValue.IndexOf('=') + 1;
+                    int startIndex = trimmedValue.IndexOf('=');
                     if (startIndex != -1)
+                    {
+                        startIndex += 1;
                         nc = trimmedValue.Substring(startIndex, trimmedValue.Length - startIndex).Trim();
+                    }
                 }
             }
 
