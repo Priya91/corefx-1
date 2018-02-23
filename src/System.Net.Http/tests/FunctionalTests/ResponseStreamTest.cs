@@ -221,6 +221,24 @@ namespace System.Net.Http.Functional.Tests
             });
         }
 
+        [Fact]
+        [Trait("category", "mytest")]
+        public async Task MyTestMethod()
+        {
+            using (var client = new HttpClient(new HttpClientHandler()))
+            using (var ms = new MemoryStream(new byte[] { 1, 2, 3 }))
+            {
+                client.BaseAddress = Configuration.Http.RemoteEchoServer;
+                await client.SendAsync(new HttpRequestMessage
+                {
+                    Method = HttpMethod.Put,
+                    Content = new StreamContent(ms)
+                });
+
+                Console.WriteLine(ms.Position);
+            }
+        }
+
         [OuterLoop] // TODO: Issue #11345
         [Theory]
         [InlineData(TransferType.None, TransferError.None)]
